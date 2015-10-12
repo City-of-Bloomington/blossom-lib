@@ -168,4 +168,21 @@ abstract class View
             $format
         );
     }
+
+    /**
+     * Creates a URI for a named route
+     *
+     * This imports the $ROUTES global variable and calls the
+     * generate function on it.
+     *
+     * @see https://github.com/auraphp/Aura.Router/tree/2.x
+     * @param string $route_name
+     * @param array $params
+     * @return string
+     */
+    public static function generateUri($route_name, $params=[])
+    {
+        global $ROUTES;
+        return $ROUTES->generate($route_name, $params);
+    }
 }
