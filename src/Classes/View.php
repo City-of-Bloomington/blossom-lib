@@ -185,4 +185,8 @@ abstract class View
         global $ROUTES;
         return $ROUTES->generate($route_name, $params);
     }
+    public static function generateUrl($route_name, $params=[])
+    {
+        return "$_SERVER[REQUEST_SCHEME]://$_SERVER[SERVER_NAME]".self::generateUri($route_name, $params);
+    }
 }
