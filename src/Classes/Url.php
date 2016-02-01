@@ -7,9 +7,8 @@
  * $url->somevar = $somevar;
  * echo $url->getURL();
  *
- * @copyright 2006-2013 City of Bloomington, Indiana.
+ * @copyright 2006-2016 City of Bloomington, Indiana.
  * @license http://www.gnu.org/licenses/agpl.txt GNU/AGPL, see LICENSE.txt
- * @author Cliff Ingham <inghamn@bloomington.in.gov>
  */
 namespace Blossom\Classes;
 
@@ -17,6 +16,7 @@ class Url
 {
 	private $scheme;
 	private $host;
+	private $port;
 	private $path;
 	private $anchor;
 
@@ -36,7 +36,6 @@ class Url
 
 		if (substr($url, 0, 5) == 'https://') {
 			curl_setopt($request, CURLOPT_SSL_VERIFYPEER, false);
-			curl_setopt($request, CURLOPT_SSLVERSION, 3);
 		}
 		return curl_exec($request);
 	}
@@ -56,15 +55,16 @@ class Url
 		// If scheme wasn't provided add one to the start of the string
 		if (!strpos(substr($script,0,20),'://')) {
 			$scheme = (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT']==443)
-				? 'https://'
-				: 'http://';
-			$script = $scheme.$script;
+				? 'https'
+				: 'http';
+			$script = "$scheme://$script";
 		}
 
 		$url = parse_url($script);
 		$this->scheme = $url['scheme'];
-		if (isset($url['host']))     { $this->host = $url['host'];       }
-		if (isset($url['path']))     { $this->path = $url['path'];       }
+		if (isset($url['host']))     { $this->host   = $url['host'];       }
+		if (isset($url['path']))     { $this->path   = $url['path'];       }
+		if (isset($url['port']))     { $this->port   = $url['port'];       }
 		if (isset($url['fragment'])) { $this->anchor = $url['fragment']; }
 		if (isset($url['query'])) { parse_str($url['query'],$this->parameters); }
 	}
@@ -74,7 +74,10 @@ class Url
 	 * @return string
 	 */
 	public function getScript() {
-		return $this->scheme.'://'.$this->host.$this->path;
+        $url = "{$this->getScheme()}://{$this->host}";
+        if ($this->port) { $url.= ":{$this->port}"; }
+        $url.= $this->path;
+        return $url;
 	}
 
 	/**
@@ -82,7 +85,7 @@ class Url
 	 * @return string
 	 */
 	public function __toString() {
-		return $this->getURL();
+		return $this->getUrl();
 	}
 
 	/**
@@ -90,7 +93,7 @@ class Url
 	 *
 	 * @return string
 	 */
-	public function getURL()
+	public function getUrl()
 	{
 		$url = $this->getScript();
 
