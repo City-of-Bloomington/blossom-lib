@@ -1,23 +1,43 @@
 <?php
 /**
- * A class for working with entries in LDAP.
+ * A example class for working with entries in LDAP.
  *
  * This class is written specifically for the City of Bloomington's
  * LDAP layout.  If you are going to be doing LDAP authentication
  * with your own LDAP server, you will probably need to customize
  * the fields used in this class.
  *
- * @copyright 2011-2013 City of Bloomington, Indiana
+ * To implement your own identity class, you should create a class
+ * in SITE_HOME/Classes.  The SITE_HOME directory does not get
+ * overwritten during an upgrade.  The namespace for your class
+ * should be Site\Classes\
+ *
+ * You can use this class as a starting point for your own implementation.
+ * You will ned to change the namespace to Site\Classes.  You might also
+ * want to change the name of the class to suit your own needs.
+ *
+ * @copyright 2011-2016 City of Bloomington, Indiana
  * @license http://www.gnu.org/licenses/agpl.txt GNU/AGPL, see LICENSE.txt
- * @author Cliff Ingham <inghamn@bloomington.in.gov>
  */
-namespace Blossom\Classes;
+namespace Site\Classes;
+
+use Blossom\Classes\ExternalIdentity;
 
 class Ldap implements ExternalIdentity
 {
 	private static $connection;
-	private $config;
+	private static $config;
 	private $entry;
+
+	private static function getConfig()
+	{
+        global $DIRECTORY_CONFIG;
+
+        if (!self::$config) {
+             self::$config = $DIRECTORY_CONFIG['Ldap'];
+        }
+        return self::$config;
+	}
 
 	/**
 	 * @param array $config
@@ -27,8 +47,7 @@ class Ldap implements ExternalIdentity
 	 */
 	public static function authenticate($username, $password)
 	{
-		global $DIRECTORY_CONFIG;
-		$config = $DIRECTORY_CONFIG['Ldap'];
+        $config = self::getConfig();
 
 		$bindUser = sprintf(str_replace('{username}','%s',$config['DIRECTORY_USER_BINDING']),$username);
 
@@ -48,15 +67,14 @@ class Ldap implements ExternalIdentity
 	 */
 	public function __construct($username)
 	{
-		global $DIRECTORY_CONFIG;
+        $config = self::getConfig();
 
-		$this->config = $DIRECTORY_CONFIG['Ldap'];
 		$this->openConnection();
 
 		$result = ldap_search(
 			self::$connection,
-			$this->config['DIRECTORY_BASE_DN'],
-			$this->config['DIRECTORY_USERNAME_ATTRIBUTE']."=$username"
+			$config['DIRECTORY_BASE_DN'],
+			$config['DIRECTORY_USERNAME_ATTRIBUTE']."=$username"
 		);
 		if (ldap_count_entries(self::$connection,$result)) {
 			$entries = ldap_get_entries(self::$connection, $result);
@@ -72,15 +90,17 @@ class Ldap implements ExternalIdentity
 	 */
 	private function openConnection()
 	{
+        $config = self::getConfig();
+
 		if (!self::$connection) {
-			if (self::$connection = ldap_connect($this->config['DIRECTORY_SERVER'])) {
+			if (self::$connection = ldap_connect($config['DIRECTORY_SERVER'])) {
 				ldap_set_option(self::$connection, LDAP_OPT_PROTOCOL_VERSION,3);
 				ldap_set_option(self::$connection, LDAP_OPT_REFERRALS, 0);
-				if (!empty($this->config['DIRECTORY_ADMIN_BINDING'])) {
+				if (!empty($config['DIRECTORY_ADMIN_BINDING'])) {
 					if (!ldap_bind(
 							self::$connection,
-							$this->config['DIRECTORY_ADMIN_BINDING'],
-							$this->config['DIRECTORY_ADMIN_PASS']
+							$config['DIRECTORY_ADMIN_BINDING'],
+							$config['DIRECTORY_ADMIN_PASS']
 						)) {
 						throw new \Exception(ldap_error(self::$connection));
 					}

@@ -1,17 +1,29 @@
 <?php
 /**
- * A class for working with entries in LDAP.
+ * A example class for working with an identity webservice
+ *
+ * This implementation is only an example.
  *
  * This class is written specifically for the City of Bloomington's
- * LDAP layout.  If you are going to be doing LDAP authentication
- * with your own LDAP server, you will probably need to customize
+ * Directory web application. You will probably need to customize
  * the fields used in this class.
  *
- * @copyright 2011-2013 City of Bloomington, Indiana
+ * To implement your own identity class, you should create a class
+ * in SITE_HOME/Classes.  The SITE_HOME directory does not get
+ * overwritten during an upgrade.  The namespace for your class
+ * should be Site\Classes\
+ *
+ * You can use this class as a starting point for your own implementation.
+ * You will ned to change the namespace to Site\Classes.  You might also
+ * want to change the name of the class to suit your own needs.
+ *
+ * @copyright 2011-2016 City of Bloomington, Indiana
  * @license http://www.gnu.org/licenses/agpl.txt GNU/AGPL, see LICENSE.txt
- * @author Cliff Ingham <inghamn@bloomington.in.gov>
  */
-namespace Blossom\Classes;
+namespace Site\Classes;
+
+use Blossom\Classes\Url;
+use Blossom\Classes\ExternalIdentity;
 
 class Employee implements ExternalIdentity
 {
@@ -20,6 +32,8 @@ class Employee implements ExternalIdentity
 	private $entry;
 
 	/**
+	 * We use CAS, so no authentication attempts should occur here
+	 *
 	 * @param array $config
 	 * @param string $username
 	 * @param string $password
@@ -47,6 +61,9 @@ class Employee implements ExternalIdentity
             $this->entry = json_decode($response);
             if (!$this->entry) {
                 throw new \Exception('Employee/unknownUser');
+            }
+            if (!empty($this->entry->errors)) {
+                throw new \Exception($this->entry->errors[0]);
             }
 		}
 		else {

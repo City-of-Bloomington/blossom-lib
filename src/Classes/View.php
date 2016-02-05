@@ -19,10 +19,10 @@ abstract class View
 	public function __construct(array $vars=null)
 	{
         if (defined('THEME')
-                 && is_dir(SITE_HOME.'/themes/'.THEME)) {
-            $this->theme = SITE_HOME.'/themes/'.THEME;
+                 && is_dir(SITE_HOME.'/Themes/'.THEME)) {
+            $this->theme = SITE_HOME.'/Themes/'.THEME;
         }
-        
+
 		if (count($vars)) {
 			foreach ($vars as $name=>$value) {
 				$this->vars[$name] = $value;
