@@ -45,19 +45,12 @@ class SkidderWriter extends AbstractWriter
             'message' => $this->formatter->format($event)
         ];
 
-        print_r($this);
-
         $skidder = curl_init($this->url);
         curl_setopt($skidder, CURLOPT_POST,           true);
         curl_setopt($skidder, CURLOPT_HEADER,         true);
         curl_setopt($skidder, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($skidder, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($skidder, CURLOPT_POSTFIELDS, $post);
-        if (curl_exec($skidder) === false) {
-            echo curl_error($skidder);
-            exit();
-        }
-
-        print_r(curl_getinfo($skidder));
+        curl_exec($skidder);
    }
 }
