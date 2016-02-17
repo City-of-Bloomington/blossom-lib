@@ -89,11 +89,14 @@ class Block extends View
 	 */
 	public function _include($file)
 	{
-		if ($this->theme && is_file($this->theme."/blocks/$file")) {
-			include $this->theme."/blocks/$file";
+        $format = $this->template->outputFormat;
+
+		if ($this->theme
+            && is_file($this->theme."/blocks/$format/$file")) {
+			include    $this->theme."/blocks/$format/$file";
 		}
 		else {
-			include APPLICATION_HOME."/blocks/$file";
+			include APPLICATION_HOME."/blocks/$format/$file";
 		}
 	}
 }

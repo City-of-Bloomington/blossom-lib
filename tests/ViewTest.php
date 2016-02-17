@@ -1,13 +1,11 @@
 <?php
 /**
- * @copyright 2014 City of Bloomington, Indiana
+ * @copyright 2014-2016 City of Bloomington, Indiana
  * @license http://www.gnu.org/licenses/agpl.txt GNU/AGPL, see LICENSE.txt
- * @author Cliff Ingham <inghamn@bloomington.in.gov>
  */
-$_SERVER['SITE_HOME'] = __DIR__;
-require_once realpath(__DIR__.'/../../../configuration.inc');
-
 use Blossom\Classes\View;
+
+include './configuration.inc';
 
 class ViewTest extends PHPUnit_Framework_TestCase
 {

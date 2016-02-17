@@ -1,11 +1,11 @@
 <?php
 /**
- * @copyright 2014 City of Bloomington, Indiana
+ * @copyright 2014-2016 City of Bloomington, Indiana
  * @license http://www.gnu.org/licenses/agpl.txt GNU/AGPL, see LICENSE.txt
- * @author Cliff Ingham <inghamn@bloomington.in.gov>
  */
-$_SERVER['SITE_HOME'] = __DIR__;
-require_once realpath(__DIR__.'/../../../configuration.inc');
+use Blossom\Classes\ActiveRecord;
+
+include './configuration.inc';
 
 class ActiveRecordTest extends PHPUnit_Framework_TestCase
 {
@@ -92,7 +92,10 @@ class TestModel extends Blossom\Classes\ActiveRecord
 		return parent::getDateData($field, $format, $timezone);
 	}
 
-	public function setDateData($field, $date) { parent::setDateData($field, $date); }
+	public function setDateData($field, $date, $format=DATETIME_FORMAT, $databaseFormat=self::MYSQL_DATETIME_FORMAT)
+	{
+        parent::setDateData($field, $date);
+    }
 
 	public function getTestModel()
 	{

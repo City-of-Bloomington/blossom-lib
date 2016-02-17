@@ -1,13 +1,11 @@
 <?php
 /**
- * @copyright 2014 City of Bloomington, Indiana
+ * @copyright 2014-2016 City of Bloomington, Indiana
  * @license http://www.gnu.org/licenses/agpl.txt GNU/AGPL, see LICENSE.txt
- * @author Cliff Ingham <inghamn@bloomington.in.gov>
  */
-$_SERVER['SITE_HOME'] = __DIR__;
-require_once realpath(__DIR__.'/../../../configuration.inc');
-
 use Blossom\Classes\Template;
+
+include './configuration.inc';
 
 class TemplateTest extends PHPUnit_Framework_TestCase
 {
@@ -20,21 +18,18 @@ class TemplateTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals('another', $template->one);
 	}
 
-	/**
-	 * SITE_HOME sites should be able to override any template
-	 */
-	public function testSiteOverrides()
+	public function testNormalRendering()
 	{
-		$template = new Template('test', 'test');
+		$template = new Template('test', 'html');
 
-		$expectedOutput = file_get_contents(__DIR__.'/templates/test/test.inc');
+		$expectedOutput = file_get_contents(APPLICATION_HOME.'/templates/html/test.inc');
 		$this->assertEquals($expectedOutput, $template->render());
 
 		$helper = $template->getHelper('test');
 		$this->assertEquals('something', $helper->test('something'));
 
-		$template = new Template('partials', 'test');
-		$expectedOutput = file_get_contents(__DIR__.'/templates/test/partials/testPartial.inc');
+		$template = new Template('partials', 'html');
+		$expectedOutput = file_get_contents(APPLICATION_HOME.'/templates/html/partials/testPartial.inc');
 		$this->assertEquals($expectedOutput, $template->render());
 	}
 }

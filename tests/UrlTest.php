@@ -4,7 +4,8 @@
  * @license http://www.gnu.org/licenses/agpl.txt GNU/AGPL, see LICENSE.txt
  */
 use Blossom\Classes\Url;
-include '../src/Classes/Url.php';
+
+include './configuration.inc';
 
 class UrlTest extends PHPUnit_Framework_TestCase
 {
