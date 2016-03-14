@@ -1,62 +1,38 @@
 <?php
 /**
- * Singleton for the Database connection
+ * Manages singletons for database connections
  *
- * @copyright 2006-2013 City of Bloomington, Indiana
+ * Allows for connecting to multiple databases, using
+ * only a single instance for each database connection.
+ *
+ * @copyright 2006-2016 City of Bloomington, Indiana
  * @license http://www.gnu.org/licenses/agpl.txt GNU/AGPL, see LICENSE.txt
- * @author Cliff Ingham <inghamn@bloomington.in.gov>
  */
 namespace Blossom\Classes;
 use Zend\Db\Adapter\Adapter;
 
 class Database
 {
-	private static $connection;
+	private static $connections = [];
 
 	/**
 	 * @param boolean $reconnect If true, drops the connection and reconnects
+	 * @param string $db         Label for database configuration
 	 * @return resource
 	 */
-	public static function getConnection($reconnect=false)
+	public static function getConnection($reconnect=false, $db='default')
 	{
+        global $DATABASES;
+        
 		if ($reconnect) {
-			self::$connection=null;
+            if (isset(self::$connections[$db])) { unset(self::$connections[$db]); }
 		}
-		if (!self::$connection) {
+        if (!isset(self::$connections[$db])) {
 			try {
-				$parameters = array('driver'  =>DB_ADAPTER,
-									'hostname'=>DB_HOST,
-									'username'=>DB_USER,
-									'password'=>DB_PASS,
-									'database'  =>DB_NAME,
-									'charset' =>'utf8');
-				self::$connection = new Adapter($parameters);
+				self::$connections[$db] = new Adapter($DATABASES[$db]);
 			}
-			catch (Exception $e) {
-				die($e->getMessage());
-			}
+			catch (Exception $e) { die($e->getMessage()); }
 		}
-		return self::$connection;
-	}
-
-	/**
-	 * Returns the type of database that's being used (mysql, oracle, etc.)
-	 *
-	 * @return string
-	 */
-	public static function getType()
-	{
-		switch (strtolower(DB_ADAPTER)) {
-			case 'pdo_mysql':
-			case 'mysqli':
-				return 'mysql';
-				break;
-
-			case 'pdo_oci':
-			case 'oci8':
-				return 'oracle';
-				break;
-		}
-
+		return self::$connections[$db];
 	}
 }
