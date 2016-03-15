@@ -2,10 +2,9 @@
 /**
  * @copyright 2011-2016 City of Bloomington, Indiana
  * @license http://www.gnu.org/licenses/agpl.txt GNU/AGPL, see LICENSE.txt
- * @author Cliff Ingham <inghamn@bloomington.in.gov>
  */
 namespace Blossom\Classes;
-use Zend\Db\Sql\Sql;
+use Aura\SqlQuery\QueryFactory;
 
 abstract class ActiveRecord
 {
@@ -19,11 +18,15 @@ abstract class ActiveRecord
 	abstract public function validate();
 
 	/**
-	 * Callback from TableGateway
+	 * @param string $sql
+	 * @param array $params Bound parameters
 	 */
-	public function exchangeArray($data)
+	public function doQuery($sql, array $params=null)
 	{
-		$this->data = $data;
+        $pdo = Database::getConnection();
+        $query = $pdo->prepare($sql);
+        $query->execute($params);
+        return $query->fetchAll(\PDO::FETCH_ASSOC);
 	}
 
 	/**
@@ -32,18 +35,26 @@ abstract class ActiveRecord
 	protected function save()
 	{
 		$this->validate();
-		$zend_db = Database::getConnection();
-		$sql = new Sql($zend_db, $this->tablename);
+		$pdo = Database::getConnection();
+
+        $factory = new QueryFactory(Database::getPlatform());
 		if ($this->getId()) {
-			$update = $sql->update()
-				->set($this->data)
-				->where(array('id'=>$this->getId()));
-			$sql->prepareStatementForSqlObject($update)->execute();
+            $update = $factory->newUpdate();
+            $update->table($this->tablename)
+                   ->cols($this->data)
+                   ->where('id=?', $this->getId());
+
+            $query = $pdo->prepare($update->getStatement());
+            $pdo->execute($update->getBindValues());
 		}
 		else {
-			$insert = $sql->insert()->values($this->data);
-			$sql->prepareStatementForSqlObject($insert)->execute();
-			$this->data['id'] = $zend_db->getDriver()->getLastGeneratedValue();
+            $insert = $factory->newInsert();
+            $insert->into($this->tablename)
+                   ->cols($this->data);
+
+            $query = $pdo->prepare($insert->getStatement());
+            $query->execute($insert->getBindValues());
+            $this->data['id'] = $pdo->lastInsertId();
 		}
 	}
 
@@ -53,9 +64,13 @@ abstract class ActiveRecord
 	protected function delete()
 	{
 		if ($this->getId()) {
-			$sql = new Sql(Database::getConnection(), $this->tablename);
-			$delete = $sql->delete()->where(['id'=>$this->getId()]);
-			$sql->prepareStatementForSqlObject($delete)->execute();
+            $factory = new QueryFactory(Database::getPlatform());
+            $delete = $factory->newDelete();
+            $delete->from($this->tablename)->where('id=?', $this->getId());
+
+            $pdo = Database::getConnection();
+            $query = $pdo->prepare($delete->getStatement());
+            $query->execute($delete->getBindValues());
 		}
 	}
 

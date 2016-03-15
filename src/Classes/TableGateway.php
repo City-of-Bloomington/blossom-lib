@@ -2,22 +2,18 @@
 /**
  * A base class that streamlines creation of ZF2 TableGateway
  *
- * @copyright 2014 City of Bloomington, Indiana
+ * @copyright 2014-16 City of Bloomington, Indiana
  * @license http://www.gnu.org/licenses/agpl.txt GNU/AGPL, see LICENSE.txt
- * @author Cliff Ingham <inghamn@bloomington.in.gov>
  */
 namespace Blossom\Classes;
 
-use Zend\Db\TableGateway\TableGateway as ZendTableGateway;
-use Zend\Db\ResultSet\ResultSet;
-use Zend\Db\Sql\Select;
-use Zend\Paginator\Adapter\DbSelect;
-use Zend\Paginator\Paginator;
+use Aura\SqlQuery\QueryFactory;
 
 abstract class TableGateway
 {
-	protected $resultSetPrototype;
-	protected $tableGateway;
+    protected $queryFactory;
+    protected $tablename;
+    protected $classname;
 
 	/**
 	 * @param string $table The name of the database table
@@ -28,14 +24,9 @@ abstract class TableGateway
 	 */
 	public function __construct($table, $class)
 	{
-		$this->resultSetPrototype = new ResultSet();
-		$this->resultSetPrototype->setArrayObjectPrototype(new $class());
-		$this->tableGateway = new ZendTableGateway(
-			$table,
-			Database::getConnection(),
-			null,
-			$this->resultSetPrototype
-		);
+        $this->queryFactory = new QueryFactory(Database::getPlatform());
+        $this->tablename = $table;
+        $this->classname = $class;
 	}
 
 	/**
@@ -50,75 +41,77 @@ abstract class TableGateway
 	 * running quicker.
 	 *
 	 * @param array $fields Key value pairs to select on
-	 * @param string $order The default ordering to use for select
-	 * @param boolean $paginated If set to true, will return a paginator
-	 * @param int $limit
+	 * @param array $order The default ordering to use for select
+	 * @param int $itemsPerPage
+	 * @param int $currentPage
 	 */
-	public function find($fields=null, $order=null, $paginated=false, $limit=null)
+	public function find($fields=null, $order=null, $itemsPerPage=null, $currentPage=null)
 	{
-		$select = new Select($this->tableGateway->getTable());
+        $select = $this->queryFactory->newSelect();
+        $select->cols(['*'])->from($this->tablename);
+
 		if (count($fields)) {
 			foreach ($fields as $key=>$value) {
                 if (isset($this->columns)) {
                     if (in_array($key, $this->columns)) {
-                        $select->where([$key=>$value]);
+                        $select->where("$key=?", $value);
                     }
                 }
                 else {
-                    $select->where([$key=>$value]);
+                    $select->where("$key=?", $value);
                 }
 			}
 		}
-		return $this->performSelect($select, $order, $paginated, $limit);
+
+        if ($order) { $select->orderBy($order); }
+		return $this->performSelect($select, $itemsPerPage, $currentPage);
 	}
 
 	/**
-	 * @param Zend\Db\Sql\Select $select
-	 * @return Zend\Db\ResultSet
+	 * @param Aura\SqlQuery\Select $select
+	 * @param Blossom\Classes\Paginator $paginator
+	 * @return array An array of hydrated objects
 	 */
-	public function performSelect(Select $select, $order, $paginated=false, $limit=null)
+	public function performSelect($select, $itemsPerPage=null, $currentPage=null)
 	{
-		if ($order) { $select->order($order); }
-		if ($limit) { $select->limit($limit); }
+        $pdo = Database::getConnection();
 
-		if ($paginated) {
-			$adapter = new DbSelect($select, $this->tableGateway->getAdapter(), $this->resultSetPrototype);
-			$paginator = new Paginator($adapter);
-			return $paginator;
-		}
-		else {
-			return $this->tableGateway->selectWith($select);
-		}
-	}
-	
-	/**
-	 * @param Zend\Db\ResultSet
-	 * @return array
-	 */
-	public static function hydrateResults(ResultSet $results)
-	{
-        $output = [];
-        foreach ($results as $object) {
-            $output[] = $object;
+        if ($itemsPerPage) {
+            $currentPage = $currentPage ? $currentPage : 1;
+            $paginator = new Paginator($itemsPerPage, $currentPage);
+
+            $c = $this->queryFactory->newSelect();
+            $c->cols(['count(*) as count'])
+              ->fromSubSelect($select, 'o');
+            $query = $pdo->prepare($c->getStatement());
+            $query->execute($c->getBindValues());
+            $result = $query->fetchAll(\PDO::FETCH_ASSOC);
+            $paginator->totalItemCount = $result[0]['count'];
+
+            $select->limit ($paginator->itemsPerPage);
+            $select->offset($paginator->itemsPerPage * ($paginator->currentPageNumber-1));
+
+            $query = $pdo->prepare($select->getStatement());
+            $query->execute($select->getBindValues());
+
+            $result = $query->fetchAll(\PDO::FETCH_ASSOC);
+            foreach ($result as $row) {
+                $class = $this->classname;
+                $paginator->items[] = new $class($row);
+            }
+            return $paginator;
         }
-        return $output;
-	}
+        else {
+            $query = $pdo->prepare($select->getStatement());
+            $query->execute($select->getBindValues());
 
-	/**
-	 * Returns the generated sql
-	 *
-	 * @param Zend\Db\Sql\Select
-	 */
-	public function getSqlForSelect(Select $select)
-	{
-		return $select->getSqlString($this->tableGateway->getAdapter()->getPlatform());
-	}
-
-	/**
-	 * @param Zend\Db\ResultSet
-	 */
-	public static function getSqlForResult(ResultSet $result)
-	{
-		return $result->getDataSource()->getResource()->queryString;
+            $items = [];
+            $result = $query->fetchAll(\PDO::FETCH_ASSOC);
+            foreach ($result as $row) {
+                $class = $this->classname;
+                $items[] = new $class($row);
+            }
+            return $result;
+        }
 	}
 }

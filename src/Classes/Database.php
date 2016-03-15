@@ -9,7 +9,6 @@
  * @license http://www.gnu.org/licenses/agpl.txt GNU/AGPL, see LICENSE.txt
  */
 namespace Blossom\Classes;
-use Zend\Db\Adapter\Adapter;
 
 class Database
 {
@@ -23,16 +22,29 @@ class Database
 	public static function getConnection($reconnect=false, $db='default')
 	{
         global $DATABASES;
-        
+
 		if ($reconnect) {
             if (isset(self::$connections[$db])) { unset(self::$connections[$db]); }
 		}
         if (!isset(self::$connections[$db])) {
 			try {
-				self::$connections[$db] = new Adapter($DATABASES[$db]);
+                $conf = $DATABASES[$db];
+                $options = !empty($conf['options']) ? $conf['options'] : [];
+
+				self::$connections[$db] = new \PDO($conf['dsn'], $conf['username'], $conf['password'], $options);
 			}
 			catch (Exception $e) { die($e->getMessage()); }
 		}
 		return self::$connections[$db];
+	}
+
+	/**
+	 * @param string $db Label for database configuration
+	 * @return string
+	 */
+	public static function getPlatform($db='default')
+	{
+        $pdo = self::getConnection($db);
+        return ucfirst($pdo->getAttribute(\PDO::ATTR_DRIVER_NAME));
 	}
 }
