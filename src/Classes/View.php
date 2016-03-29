@@ -148,6 +148,10 @@ abstract class View
         return $this->translate($msgid, $domain);
     }
 
+    public static $supportedDateFormatStrings = [
+        'm', 'n', 'd', 'j', 'Y', 'H', 'g', 'i', 's', 'a'
+    ];
+
     /**
      * Converts the PHP date format string syntax into something for humans
      *
@@ -157,10 +161,25 @@ abstract class View
     public static function translateDateString($format)
     {
         return str_replace(
-            ['m',  'n' , 'd',  'j',  'Y',    'H',  'g',  'i',  's',  'a'],
+            self::$supportedDateFormatStrings,
             ['mm', 'mm', 'dd', 'dd', 'yyyy', 'hh', 'hh', 'mm', 'ss', 'am'],
             $format
         );
+    }
+
+    public static function convertDateFormat($format, $syntax)
+    {
+        $languages = [
+            'mysql' => ['%m', '%c', '%d', '%e', '%Y', '%H', '%l', '%i', '%s', '%p']
+        ];
+
+        if (array_key_exists($syntax, $languages)) {
+            return str_replace(
+                self::$supportedDateFormatStrings,
+                $languages[$syntax],
+                $format
+            );
+        }
     }
 
     /**
