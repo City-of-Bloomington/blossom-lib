@@ -170,7 +170,8 @@ abstract class View
     public static function convertDateFormat($format, $syntax)
     {
         $languages = [
-            'mysql' => ['%m', '%c', '%d', '%e', '%Y', '%H', '%l', '%i', '%s', '%p']
+            'mysql'  => ['%m', '%c', '%d', '%e', '%Y', '%H', '%l', '%i', '%s', '%p'],
+            'jquery' => ['mm', 'm',  'dd', 'd',  'yy', 'HH', 'h',  'mm', 'ss', 'a' ]
         ];
 
         if (array_key_exists($syntax, $languages)) {
@@ -180,18 +181,6 @@ abstract class View
                 $format
             );
         }
-    }
-
-    /**
-     * Converts a PHP date format string to jQuery's date format syntax
-     */
-    public static function jQueryDateFormat($format)
-    {
-        return str_replace(
-            ['m',  'n', 'd',  'j', 'Y' ],
-            ['mm', 'm', 'dd', 'd', 'yy'],
-            $format
-        );
     }
 
     /**
