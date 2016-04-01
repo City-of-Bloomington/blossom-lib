@@ -8,9 +8,9 @@
  * @param Zend\Paginator $this->paginator
  */
 use Blossom\Classes\Url;
+$pages = $this->paginator->getPages();
 
-if ($this->paginator->count() > 1) {
-	$pages = $this->paginator->getPages();
+if (count($pages->pagesInRange) > 1) {
 
 	$url = new Url($_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI']);
 	$url->purgeEmptyParameters();

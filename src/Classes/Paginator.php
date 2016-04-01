@@ -78,8 +78,9 @@ class Paginator implements \Iterator, \ArrayAccess, \Countable
         }
 
         $p = new \stdClass();
-        $p->first = 1;
-        $p->last  = $pageCount;
+        $p->first   = 1;
+        $p->last    = $pageCount;
+        $p->current = $this->currentPageNumber;
         if ($this->currentPageNumber > 1)          { $p->previous = $this->currentPageNumber - 1; }
         if ($this->currentPageNumber < $pageCount) { $p->next     = $this->currentPageNumber + 1; }
         $p->pagesInRange = $pages;
