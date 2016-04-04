@@ -28,6 +28,14 @@ class ViewTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($escaped, $expected);
         $this->assertEquals($unescaped, $input);
 	}
+
+	public function testDateFormatConversion()
+	{
+        $date_format = 'n/j/Y';
+
+        $newFormat = View::convertDateFormat($date_format, 'mysql');
+        $this->assertEquals('%c/%e/%Y', $newFormat);
+	}
 }
 
 class ViewStub extends View

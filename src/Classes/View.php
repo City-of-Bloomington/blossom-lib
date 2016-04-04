@@ -148,6 +148,10 @@ abstract class View
         return $this->translate($msgid, $domain);
     }
 
+    public static $supportedDateFormatStrings = [
+        'm', 'n', 'd', 'j', 'Y', 'H', 'g', 'i', 's', 'a'
+    ];
+
     /**
      * Converts the PHP date format string syntax into something for humans
      *
@@ -157,22 +161,26 @@ abstract class View
     public static function translateDateString($format)
     {
         return str_replace(
-            ['m',  'n' , 'd',  'j',  'Y',    'H',  'g',  'i',  's',  'a'],
+            self::$supportedDateFormatStrings,
             ['mm', 'mm', 'dd', 'dd', 'yyyy', 'hh', 'hh', 'mm', 'ss', 'am'],
             $format
         );
     }
 
-    /**
-     * Converts a PHP date format string to jQuery's date format syntax
-     */
-    public static function jQueryDateFormat($format)
+    public static function convertDateFormat($format, $syntax)
     {
-        return str_replace(
-            ['m',  'n', 'd',  'j', 'Y' ],
-            ['mm', 'm', 'dd', 'd', 'yy'],
-            $format
-        );
+        $languages = [
+            'mysql'  => ['%m', '%c', '%d', '%e', '%Y', '%H', '%l', '%i', '%s', '%p'],
+            'jquery' => ['mm', 'm',  'dd', 'd',  'yy', 'HH', 'h',  'mm', 'ss', 'a' ]
+        ];
+
+        if (array_key_exists($syntax, $languages)) {
+            return str_replace(
+                self::$supportedDateFormatStrings,
+                $languages[$syntax],
+                $format
+            );
+        }
     }
 
     /**
