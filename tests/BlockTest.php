@@ -6,8 +6,6 @@
 use Blossom\Classes\Block;
 use Blossom\Classes\Template;
 
-include './configuration.inc';
-
 class BlockTest extends PHPUnit_Framework_TestCase
 {
     private $template;

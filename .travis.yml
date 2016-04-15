@@ -5,4 +5,4 @@ php:
 install:
   - cp ./tests/configuration.inc.default ./tests/configuration.inc
 
-script: phpunit ./tests
+script: phpunit --bootstrap ./tests/configuration.inc ./tests
