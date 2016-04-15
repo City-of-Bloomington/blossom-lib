@@ -5,8 +5,6 @@
  */
 use Blossom\Classes\ActiveRecord;
 
-include './configuration.inc';
-
 class ActiveRecordTest extends PHPUnit_Framework_TestCase
 {
 	private $testModel;

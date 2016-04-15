@@ -5,8 +5,6 @@
  */
 use Blossom\Classes\View;
 
-include './configuration.inc';
-
 class ViewTest extends PHPUnit_Framework_TestCase
 {
 	public function testVars()

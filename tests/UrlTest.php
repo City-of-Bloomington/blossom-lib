@@ -5,8 +5,6 @@
  */
 use Blossom\Classes\Url;
 
-include './configuration.inc';
-
 class UrlTest extends PHPUnit_Framework_TestCase
 {
 
