@@ -5,4 +5,11 @@
             "Blossom\\": "src"
         }
     }
+    "require": {
+        "php": ">=5.6",
+        "aura/router": "~2",
+        "zendframework/zend-db": "~2.5",
+        "zendframework/zend-log": "~2.5",
+        "zendframework/zend-paginator": "~2.5",
+    }
 }
