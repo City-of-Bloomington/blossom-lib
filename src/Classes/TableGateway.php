@@ -111,7 +111,7 @@ abstract class TableGateway
                 $class = $this->classname;
                 $items[] = new $class($row);
             }
-            return $result;
+            return $items;
         }
 	}
 }
