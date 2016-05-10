@@ -45,7 +45,7 @@ abstract class ActiveRecord
                    ->where('id=?', $this->getId());
 
             $query = $pdo->prepare($update->getStatement());
-            $pdo->execute($update->getBindValues());
+            $query->execute($update->getBindValues());
 		}
 		else {
             $insert = $factory->newInsert();
