@@ -7,7 +7,7 @@ namespace Blossom\Classes;
 
 abstract class Controller
 {
-	abstract public function index();
+	abstract public function index(array $params);
 
 	/**
 	 * Returns the full URL for a named route
