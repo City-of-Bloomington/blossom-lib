@@ -50,7 +50,7 @@ class Paginator implements \Iterator, \ArrayAccess, \Countable
     {
         $pageRange  = $this->pageRange;
         $pageNumber = $this->currentPageNumber;
-        $pageCount = (int) ceil($this->totalItemCount / $this->pageRange);
+        $pageCount = (int) ceil($this->totalItemCount / $this->itemsPerPage);
 
         if ($pageRange > $pageCount) {
             $pageRange = $pageCount;
