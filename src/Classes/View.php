@@ -2,14 +2,14 @@
 /**
  * @copyright 2006-2016 City of Bloomington, Indiana
  * @license http://www.gnu.org/licenses/agpl.txt GNU/AGPL, see LICENSE.txt
- * @author Cliff Ingham <inghamn@bloomington.in.gov>
  */
 namespace Blossom\Classes;
 
 abstract class View
 {
     protected $theme;
-	protected $vars = array();
+    protected $theme_config = [];
+	protected $vars         = [];
 
 	abstract public function render();
 
@@ -18,9 +18,15 @@ abstract class View
 	 */
 	public function __construct(array $vars=null)
 	{
-        if (defined('THEME')
-                 && is_dir(SITE_HOME.'/Themes/'.THEME)) {
-            $this->theme = SITE_HOME.'/Themes/'.THEME;
+        if (defined('THEME')) {
+            $dir = SITE_HOME.'/Themes/'.THEME;
+
+            if (is_dir($dir)) {
+                $this->theme = $dir;
+                $config_file = $dir.'/theme_config.inc';
+
+                if (is_file($config_file)) { $this->theme_config = require $config_file; }
+            }
         }
 
 		if (count($vars)) {
