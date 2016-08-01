@@ -37,6 +37,16 @@ class Block extends View
 	}
 
 	/**
+	 * @param string $file Path to file from /blocks directory
+	 * @return bool
+	 */
+	public function exists($file)
+	{
+        return (($this->theme && is_file(   "{$this->theme}/blocks/$file"))
+                ||              (is_file(APPLICATION_HOME."/blocks/$file")));
+	}
+
+	/**
 	 * Includes the block script and returns the output as a string
 	 *
 	 * We allow for passing the Template that this block is being rendered in.
