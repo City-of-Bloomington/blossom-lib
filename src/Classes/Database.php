@@ -32,7 +32,7 @@ class Database
                 $options = !empty($conf['options']) ? $conf['options'] : [];
 
 				self::$connections[$db] = new \PDO($conf['dsn'], $conf['username'], $conf['password'], $options);
-				self::$connections[$db]->setAttibute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+				self::$connections[$db]->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 			}
 			catch (Exception $e) { die($e->getMessage()); }
 		}
