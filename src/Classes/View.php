@@ -41,6 +41,7 @@ abstract class View
         setlocale(LC_ALL, $locale);
         bindtextdomain('labels',   APPLICATION_HOME.'/language');
         bindtextdomain('messages', APPLICATION_HOME.'/language');
+        bindtextdomain('errors',   APPLICATION_HOME.'/language');
         textdomain('labels');
 	}
 
