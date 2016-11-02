@@ -18,6 +18,42 @@ abstract class ActiveRecord
 	abstract public function validate();
 
 	/**
+	 * Populates the object with data
+	 *
+	 * Passing in an associative array of data will populate this object without
+	 * hitting the database.
+	 *
+	 * Passing in a scalar will load the data from the database.
+	 * This will load all fields in the table as properties of this class.
+	 * You may want to replace this with, or add your own extra, custom loading
+	 *
+	 * @param int|array $id
+	 */
+	public function __construct($id=null)
+	{
+		if ($id) {
+			if (is_array($id)) {
+				$this->data = $id;
+			}
+			else {
+                $sql = "select * from {$this->tablename} where id=?";
+
+				$rows = self::doQuery($sql, [$id]);
+                if (count($rows)) {
+                    $this->data = $rows[0];
+                }
+                else {
+                    throw new \Exception("{$this->tablename}/unknown");
+                }
+			}
+		}
+		else {
+			// This is where the code goes to generate a new, empty instance.
+			// Set any default values for properties that need it here
+		}
+	}
+
+	/**
 	 * @param string $sql
 	 * @param array $params Bound parameters
 	 */
@@ -37,11 +73,17 @@ abstract class ActiveRecord
 		$this->validate();
 		$pdo = Database::getConnection();
 
+		// Convert PHP datatypes to strings for the database
+		$data = $this->data;
+		foreach ($data as $k=>$v) {
+            if ($v instanceof \DateTime) { $data[$k] = $v->format(self::MYSQL_DATETIME_FORMAT); }
+		}
+
         $factory = new QueryFactory(Database::getPlatform());
 		if ($this->getId()) {
             $update = $factory->newUpdate();
             $update->table($this->tablename)
-                   ->cols($this->data)
+                   ->cols($data)
                    ->where('id=?', $this->getId());
 
             $query = $pdo->prepare($update->getStatement());
@@ -50,7 +92,7 @@ abstract class ActiveRecord
 		else {
             $insert = $factory->newInsert();
             $insert->into($this->tablename)
-                   ->cols($this->data);
+                   ->cols($data);
 
             $query = $pdo->prepare($insert->getStatement());
             $query->execute($insert->getBindValues());
@@ -77,7 +119,8 @@ abstract class ActiveRecord
 	/**
 	 * Returns any field stored in $data
 	 *
-	 * @param string $fieldname
+	 * @param  string $fieldname
+	 * @return mixed
 	 */
 	protected function get($fieldname)
 	{
@@ -88,11 +131,11 @@ abstract class ActiveRecord
 
 	/**
 	 * @param string $fieldname
-	 * @param string $value
+	 * @param mixed  $value
 	 */
 	protected function set($fieldname, $value)
 	{
-		$value = trim($value);
+        if (is_string($value)) { $value = trim($value); }
 		$this->data[$fieldname] = $value ? $value : null;
 	}
 
@@ -105,51 +148,17 @@ abstract class ActiveRecord
 	 *
 	 * @param string $field
 	 * @param string $format
-	 * @param DateTimeZone $timezone
 	 * @return string
 	 */
-	protected function getDateData($dateField, $format=null, \DateTimeZone $timezone=null)
+	protected function getFormattedDate($dateField, $format=null)
 	{
 		if (isset($this->data[$dateField])) {
 			if ($format) {
-				$date = new \DateTime($this->data[$dateField]);
-				if ($timezone) { $date->setTimezone($timezone); }
-				return $date->format($format);
+                return $this->data[$dateField]->format($format);
 			}
 			else {
 				return $this->data[$dateField];
 			}
-		}
-	}
-
-	/**
-	 * Sets a date
-	 *
-	 * Dates should be in DATETIME_FORMAT, set in configuration.inc
-	 * If we cannot parse the string using DATETIME_FORMAT, we will
-	 * fall back to trying something strtotime() understands
-	 * http://www.php.net/manual/en/function.strtotime.php
-	 *
-	 * @param string $dateField
-	 * @param string $date
-	 * @param string $format
-	 * @param string $databaseFormat
-	 */
-	protected function setDateData($dateField, $date, $format=DATETIME_FORMAT, $databaseFormat=self::MYSQL_DATETIME_FORMAT)
-	{
-		$date = trim($date);
-		if ($date) {
-            try {
-                $d = self::parseDate($date, $format);
-                $this->data[$dateField] = $d->format($databaseFormat);
-            }
-            catch (\Exception $e) {
-                $class = strtolower((new \ReflectionClass($this))->getShortName());
-                throw new \Exception("$class/$dateField/invalidDate");
-            }
-		}
-		else {
-			$this->data[$dateField] = null;
 		}
 	}
 
@@ -161,8 +170,8 @@ abstract class ActiveRecord
 	 * fall back to trying something strtotime() understands
 	 * http://www.php.net/manual/en/function.strtotime.php
 	 *
-	 * @param string $date
-	 * @param string $format
+	 * @param  string    $date
+	 * @param  string    $format
 	 * @throws Exception
 	 * @return DateTime
 	 */
