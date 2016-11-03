@@ -135,8 +135,13 @@ abstract class ActiveRecord
 	 */
 	protected function set($fieldname, $value)
 	{
-        if (is_string($value)) { $value = trim($value); }
-		$this->data[$fieldname] = $value ? $value : null;
+        if (is_string($value)) {
+            $value = trim($value);
+            $this->data[$fieldname] = $value ? $value : null;
+        }
+        else {
+            $this->data[$fieldname] = $value;
+        }
 	}
 
 	/**
