@@ -25,18 +25,29 @@ class Url
 	/**
 	 * Performs an HTTP GET and returns response string
 	 *
-	 * @param string $url
+	 * This is really just a convenience wrapper around CURL.
+	 * The full set of options are documented in the PHP manual.
+	 * @see http://php.net/manual/en/function.curl-setopt.php
+	 *
+	 * @param  string $url
+	 * @param  array  $curl_options Additional options to set for the curl request
 	 * @return string
 	 */
-	public static function get($url)
+	public static function get($url, array $curl_options=null)
 	{
 		$request = curl_init($url);
+		if ($curl_options) {
+            if (!curl_setopt_array($request, $curl_options)) {
+                throw new \Exception('url/invalidOption');
+            }
+		}
 		curl_setopt($request, CURLOPT_RETURNTRANSFER,true);
 		curl_setopt($request, CURLOPT_FOLLOWLOCATION, true);
 
 		if (substr($url, 0, 5) == 'https://') {
 			curl_setopt($request, CURLOPT_SSL_VERIFYPEER, false);
 		}
+
 		return curl_exec($request);
 	}
 
