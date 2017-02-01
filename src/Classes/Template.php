@@ -4,9 +4,8 @@
  *
  * The template collects all the blocks from the controller
  *
- * @copyright 2006-2015 City of Bloomington, Indiana
+ * @copyright 2006-2017 City of Bloomington, Indiana
  * @license http://www.gnu.org/licenses/agpl.txt GNU/AGPL, see LICENSE.txt
- * @author Cliff Ingham <inghamn@bloomington.in.gov>
  */
 namespace Blossom\Classes;
 
@@ -50,7 +49,7 @@ class Template extends View
 	public function setFilename($filename)
 	{
 		if ($this->theme
-               && is_file($this->theme."/templates/{$this->outputFormat}/{$this->filename}.inc")) {
+               && is_file($this->theme."/templates/{$this->outputFormat}/$filename.inc")) {
 			$this->path = $this->theme.'/templates';
 		}
 		elseif (  is_file(APPLICATION_HOME."/templates/{$this->outputFormat}/$filename.inc")) {
