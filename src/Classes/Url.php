@@ -7,20 +7,20 @@
  * $url->somevar = $somevar;
  * echo $url->getURL();
  *
- * @copyright 2006-2016 City of Bloomington, Indiana.
+ * @copyright 2006-2017 City of Bloomington, Indiana.
  * @license http://www.gnu.org/licenses/agpl.txt GNU/AGPL, see LICENSE.txt
  */
 namespace Blossom\Classes;
 
 class Url
 {
-	private $scheme;
-	private $host;
-	private $port;
-	private $path;
-	private $anchor;
+	public $scheme;
+	public $host;
+	public $port;
+	public $path;
+	public $anchor;
 
-	public $parameters = array();
+	public $parameters = [];
 
 	/**
 	 * Performs an HTTP GET and returns response string
@@ -48,9 +48,9 @@ class Url
         return "$_SERVER[REQUEST_SCHEME]://$_SERVER[SERVER_NAME]$_SERVER[REQUEST_URI]";
 	}
 
-	public function __construct($script)
+	public function __construct($url)
 	{
-		$script = urldecode($script);
+		$script = urldecode($url);
 
 		// If scheme wasn't provided add one to the start of the string
 		if (!strpos(substr($script,0,20),'://')) {
@@ -60,13 +60,13 @@ class Url
 			$script = "$scheme://$script";
 		}
 
-		$url = parse_url($script);
-		$this->scheme = $url['scheme'];
-		if (isset($url['host']))     { $this->host   = $url['host'];       }
-		if (isset($url['path']))     { $this->path   = $url['path'];       }
-		if (isset($url['port']))     { $this->port   = $url['port'];       }
-		if (isset($url['fragment'])) { $this->anchor = $url['fragment']; }
-		if (isset($url['query'])) { parse_str($url['query'],$this->parameters); }
+		$u = parse_url($script);
+		$this->scheme = $u['scheme'];
+		if (isset($u['host']))     { $this->host   = $u['host'];     }
+		if (isset($u['path']))     { $this->path   = $u['path'];     }
+		if (isset($u['port']))     { $this->port   = $u['port'];     }
+		if (isset($u['fragment'])) { $this->anchor = $u['fragment']; }
+		if (isset($u['query'])) { parse_str($u['query'],$this->parameters); }
 	}
 
 	/**
