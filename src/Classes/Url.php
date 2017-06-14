@@ -52,11 +52,17 @@ class Url
 	}
 
 	/**
+	 * If you are behind a proxy, you can pass in the hostname to use.
+	 * Otherwise it will just use $_SERVER[SERVER_NAME] of the localhost
+	 *
+	 * @param  string $hostname Optional hostname to use
 	 * @return string
 	 */
-	public static function current_url()
+	public static function current_url($hostname=null)
 	{
-        return "$_SERVER[REQUEST_SCHEME]://$_SERVER[SERVER_NAME]$_SERVER[REQUEST_URI]";
+        if (!$hostname) { $hostname = $_SERVER['SERVER_NAME']; }
+
+        return "$_SERVER[REQUEST_SCHEME]://$hostname$_SERVER[REQUEST_URI]";
 	}
 
 	public function __construct($url)
