@@ -1,1 +1,0 @@
- This directory contains blocks that can be reused across multiple applications
