@@ -9,9 +9,8 @@
  * APPLICATION_HOME/blocks/xml/...
  * APPLICATION_HOME/blocks/json/..
  *
- * @copyright 2006-2016 City of Bloomington, Indiana
+ * @copyright 2006-2017 City of Bloomington, Indiana
  * @license http://www.gnu.org/licenses/agpl.txt GNU/AGPL, see LICENSE.txt
- * @author Cliff Ingham <inghamn@bloomington.in.gov>
  */
 namespace Blossom\Classes;
 
@@ -67,9 +66,6 @@ class Block extends View
 		}
 		elseif (is_file(APPLICATION_HOME.$block)) {
 			$file = APPLICATION_HOME.$block;
-		}
-		elseif (is_file(BLOSSOM.$block)) {
-			$file = BLOSSOM.$block;
 		}
 		else {
 			throw new \Exception('unknownBlock/'.$this->file);
