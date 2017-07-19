@@ -5,7 +5,7 @@
  * Allows for connecting to multiple databases, using
  * only a single instance for each database connection.
  *
- * @copyright 2006-2016 City of Bloomington, Indiana
+ * @copyright 2006-2017 City of Bloomington, Indiana
  * @license http://www.gnu.org/licenses/agpl.txt GNU/AGPL, see LICENSE.txt
  */
 namespace Blossom\Classes;
@@ -33,6 +33,11 @@ class Database
 
 				self::$connections[$db] = new \PDO($conf['dsn'], $conf['username'], $conf['password'], $options);
 				self::$connections[$db]->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+
+				$platform = ucfirst(self::$connections[$db]->getAttribute(\PDO::ATTR_DRIVER_NAME));
+				if ($platform == 'Pgsql' && !empty($conf['schema'])) {
+                    self::$connections[$db]->exec("set search_path to $conf[schema]");
+				}
 			}
 			catch (Exception $e) { die($e->getMessage()); }
 		}
