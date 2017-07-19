@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright 2011-2016 City of Bloomington, Indiana
+ * @copyright 2011-2017 City of Bloomington, Indiana
  * @license http://www.gnu.org/licenses/agpl.txt GNU/AGPL, see LICENSE.txt
  */
 namespace Blossom\Classes;
@@ -11,9 +11,9 @@ abstract class ActiveRecord
 	protected $tablename;
 	protected $data = array();
 
-	const MYSQL_DATE_FORMAT     = 'Y-m-d';
-	const MYSQL_TIME_FORMAT     = 'H:i:s';
-	const MYSQL_DATETIME_FORMAT = 'Y-m-d H:i:s';
+	const DB_DATE_FORMAT     = 'Y-m-d';
+	const DB_TIME_FORMAT     = 'H:i:s';
+	const DB_DATETIME_FORMAT = 'Y-m-d H:i:s';
 
 	abstract public function validate();
 
@@ -96,7 +96,7 @@ abstract class ActiveRecord
 
             $query = $pdo->prepare($insert->getStatement());
             $query->execute($insert->getBindValues());
-            $this->data['id'] = $pdo->lastInsertId();
+            $this->data['id'] = $pdo->lastInsertId($insert->getLastInsertIdName('id'));
 		}
 	}
 

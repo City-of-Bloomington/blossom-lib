@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright 2014-2016 City of Bloomington, Indiana
+ * @copyright 2014-2017 City of Bloomington, Indiana
  * @license http://www.gnu.org/licenses/agpl.txt GNU/AGPL, see LICENSE.txt
  */
 use Blossom\Classes\ActiveRecord;
@@ -20,45 +20,6 @@ class ActiveRecordTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals('testValue', $this->testModel->get('testField'));
 	}
 
-	public function testGetAndSetDate()
-	{
-		$dateString = '2012-01-01 01:23:43';
-		$this->testModel->setDateData('testField', $dateString);
-		$this->assertEquals($dateString, $this->testModel->getDateData('testField'));
-	}
-
-	public function testSetDateNow()
-	{
-        $dateString = 'now';
-        $this->testModel->setDateData('testField', $dateString);
-        $this->assertEquals(date('Y-m-d'), $this->testModel->getDateData('testField', 'Y-m-d'));
-	}
-
-	/**
-	 * @expectedException Exception
-	 * @expectedExceptionMessage invalidDate
-	 */
-	public function testSetDateInvalidFormat()
-	{
-        $dateString = '12390481290/asjdk';
-        $this->testModel->setDateData('testField', $dateString);
-	}
-
-	public function testDateFormat()
-	{
-		$dateString = '1/3/2013 01:23:43';
-		$this->testModel->setDateData('testField', $dateString);
-		$this->assertEquals('Jan 3rd 2013', $this->testModel->getDateData('testField', 'M jS Y'));
-	}
-
-	public function testRawDateDataIsMySQLFormat()
-	{
-		$dateString = '1/3/2013 01:23:43';
-		$mysqlDate = '2013-01-03 01:23:43';
-
-		$this->testModel->setDateData('testField', $dateString);
-		$this->assertEquals($mysqlDate, $this->testModel->getDateData('testField'));
-	}
 
 	public function testForeignKeyObject()
 	{
@@ -83,17 +44,6 @@ class TestModel extends Blossom\Classes\ActiveRecord
 
 	public function get($field)  { return parent::get($field); }
 	public function set($field, $value) { parent::set($field, $value); }
-
-
-	public function getDateData($field, $format=null, \DateTimeZone $timezone=null)
-	{
-		return parent::getDateData($field, $format, $timezone);
-	}
-
-	public function setDateData($field, $date, $format=DATETIME_FORMAT, $databaseFormat=self::MYSQL_DATETIME_FORMAT)
-	{
-        parent::setDateData($field, $date);
-    }
 
 	public function getTestModel()
 	{
