@@ -76,7 +76,7 @@ abstract class ActiveRecord
 		// Convert PHP datatypes to strings for the database
 		$data = $this->data;
 		foreach ($data as $k=>$v) {
-            if ($v instanceof \DateTime) { $data[$k] = $v->format(self::MYSQL_DATETIME_FORMAT); }
+            if ($v instanceof \DateTime) { $data[$k] = $v->format(self::DB_DATETIME_FORMAT); }
 		}
 
         $factory = new QueryFactory(Database::getPlatform());
