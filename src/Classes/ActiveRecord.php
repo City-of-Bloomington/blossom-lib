@@ -3,6 +3,7 @@
  * @copyright 2011-2017 City of Bloomington, Indiana
  * @license http://www.gnu.org/licenses/agpl.txt GNU/AGPL, see LICENSE.txt
  */
+declare (strict_types=1);
 namespace Blossom\Classes;
 use Aura\SqlQuery\QueryFactory;
 
@@ -55,9 +56,9 @@ abstract class ActiveRecord
 
 	/**
 	 * @param string $sql
-	 * @param array $params Bound parameters
+	 * @param array  $params Bound parameters
 	 */
-	public function doQuery($sql, array $params=null)
+	public static function doQuery($sql, array $params=null)
 	{
         $pdo = Database::getConnection();
         $query = $pdo->prepare($sql);

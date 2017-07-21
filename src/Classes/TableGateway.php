@@ -45,7 +45,7 @@ abstract class TableGateway
 	 * @param int $itemsPerPage
 	 * @param int $currentPage
 	 */
-	public function find($fields=null, $order=null, $itemsPerPage=null, $currentPage=null)
+	public function find(array $fields=null, array $order=null, int $itemsPerPage=null, int $currentPage=null)
 	{
         $select = $this->queryFactory->newSelect();
         $select->cols(['*'])->from($this->tablename);
