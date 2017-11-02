@@ -181,13 +181,15 @@ abstract class ActiveRecord
 	 * @throws Exception
 	 * @return DateTime
 	 */
-	public static function parseDate($date, $format=DATETIME_FORMAT)
+	public static function parseDate(string $date=null, string $format=DATETIME_FORMAT)
 	{
-        $d = \DateTime::createFromFormat($format, $date);
-        if (!$d) {
-            $d = new \DateTime($date);
+        if (!empty($date)) {
+            $d = \DateTime::createFromFormat($format, $date);
+            if (!$d) {
+                $d = new \DateTime($date);
+            }
+            return $d;
         }
-        return $d;
 	}
 
 	/**
@@ -216,11 +218,11 @@ abstract class ActiveRecord
 	 *
 	 * @param string $class Fully namespaced classname
 	 * @param string $field Name of field to set
-	 * @param string $id The value to set
+	 * @param mixed  $id The value to set
 	 */
-	protected function setForeignKeyField($class, $field, $id)
+	protected function setForeignKeyField(string $class, string $field, $id)
 	{
-		$id = trim($id);
+        if (is_string($id)) { $id = trim($id); }
 		$var = preg_replace('/_id$/', '', $field);
 		if ($id) {
 			$this->$var = new $class($id);
