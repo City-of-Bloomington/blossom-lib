@@ -10,7 +10,8 @@ use Aura\SqlQuery\QueryFactory;
 abstract class ActiveRecord
 {
 	protected $tablename;
-	protected $data = array();
+	protected $primaryKey = 'id';
+	protected $data       = [];
 
 	const DB_DATE_FORMAT     = 'Y-m-d';
 	const DB_TIME_FORMAT     = 'H:i:s';
@@ -37,7 +38,7 @@ abstract class ActiveRecord
 				$this->data = $id;
 			}
 			else {
-                $sql = "select * from {$this->tablename} where id=?";
+                $sql = "select * from {$this->tablename} where {$this->primaryKey}=?";
 
 				$rows = self::doQuery($sql, [$id]);
                 if (count($rows)) {
@@ -85,7 +86,7 @@ abstract class ActiveRecord
             $update = $factory->newUpdate();
             $update->table($this->tablename)
                    ->cols($data)
-                   ->where('id=?', $this->getId());
+                   ->where("{$this->primaryKey}=?", $this->getId());
 
             $query = $pdo->prepare($update->getStatement());
             $query->execute($update->getBindValues());
@@ -97,7 +98,7 @@ abstract class ActiveRecord
 
             $query = $pdo->prepare($insert->getStatement());
             $query->execute($insert->getBindValues());
-            $this->data['id'] = $pdo->lastInsertId($insert->getLastInsertIdName('id'));
+            $this->data[$this->primaryKey] = $pdo->lastInsertId($insert->getLastInsertIdName($this->primaryKey));
 		}
 	}
 
@@ -109,7 +110,7 @@ abstract class ActiveRecord
 		if ($this->getId()) {
             $factory = new QueryFactory(Database::getPlatform());
             $delete = $factory->newDelete();
-            $delete->from($this->tablename)->where('id=?', $this->getId());
+            $delete->from($this->tablename)->where("{$this->primaryKey}=?", $this->getId());
 
             $pdo = Database::getConnection();
             $query = $pdo->prepare($delete->getStatement());
@@ -126,7 +127,7 @@ abstract class ActiveRecord
 	protected function get($fieldname)
 	{
 		if (isset($this->data[$fieldname])) {
-			return $this->data[$fieldname];
+           return $this->data[$fieldname];
 		}
 	}
 
