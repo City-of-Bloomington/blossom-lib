@@ -2,9 +2,8 @@
 /**
  * A base class that streamlines creation of ZF2 TableGateway
  *
- * @copyright 2014 City of Bloomington, Indiana
+ * @copyright 2014-2018 City of Bloomington, Indiana
  * @license http://www.gnu.org/licenses/agpl.txt GNU/AGPL, see LICENSE.txt
- * @author Cliff Ingham <inghamn@bloomington.in.gov>
  */
 namespace Blossom\Classes;
 
@@ -57,7 +56,7 @@ abstract class TableGateway
 	public function find($fields=null, $order=null, $paginated=false, $limit=null)
 	{
 		$select = new Select($this->tableGateway->getTable());
-		if (count($fields)) {
+		if ($fields) {
 			foreach ($fields as $key=>$value) {
                 if (isset($this->columns)) {
                     if (in_array($key, $this->columns)) {
@@ -90,7 +89,7 @@ abstract class TableGateway
 			return $this->tableGateway->selectWith($select);
 		}
 	}
-	
+
 	/**
 	 * @param Zend\Db\ResultSet
 	 * @return array
