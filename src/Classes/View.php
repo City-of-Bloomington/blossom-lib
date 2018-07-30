@@ -29,7 +29,7 @@ abstract class View
             }
         }
 
-		if (count($vars)) {
+		if ($vars) {
 			foreach ($vars as $name=>$value) {
 				$this->vars[$name] = $value;
 			}

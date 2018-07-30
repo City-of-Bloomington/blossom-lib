@@ -2,7 +2,7 @@
 /**
  * A base class that streamlines creation of ZF2 TableGateway
  *
- * @copyright 2014-16 City of Bloomington, Indiana
+ * @copyright 2014-2018 City of Bloomington, Indiana
  * @license http://www.gnu.org/licenses/agpl.txt GNU/AGPL, see LICENSE.txt
  */
 namespace Blossom\Classes;
@@ -50,7 +50,7 @@ abstract class TableGateway
         $select = $this->queryFactory->newSelect();
         $select->cols(['*'])->from($this->tablename);
 
-		if (count($fields)) {
+		if ($fields) {
 			foreach ($fields as $key=>$value) {
                 if (isset($this->columns)) {
                     if (in_array($key, $this->columns)) {
